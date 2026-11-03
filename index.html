@@ -90,21 +90,24 @@
 
         /* モンスターボールゲットアニメーション */
         @keyframes throwBall {
-            0% { transform: translate(-100px, 100px) scale(0.5) rotate(0deg); opacity: 0; }
-            50% { transform: translate(0, -30px) scale(1.2) rotate(360deg); opacity: 1; }
-            100% { transform: translate(0, 0) scale(1) rotate(720deg); opacity: 1; }
+            0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 0; }
+            30% { opacity: 1; transform: translate(120px, -45px) scale(1.15) rotate(360deg); }
+            70% { opacity: 1; transform: translate(250px, 20px) scale(1) rotate(720deg); }
+            100% { opacity: 1; transform: translate(250px, 32px) scale(0.95) rotate(720deg); }
         }
         .animate-throw-ball {
-            animation: throwBall 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: throwBall 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
         @keyframes ballWiggle {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-18deg); }
-            75% { transform: rotate(18deg); }
+            0%, 100% { transform: translate(250px, 32px) rotate(0deg); }
+            20% { transform: translate(250px, 32px) rotate(-22deg); }
+            40% { transform: translate(250px, 32px) rotate(22deg); }
+            60% { transform: translate(250px, 32px) rotate(-15deg); }
+            80% { transform: translate(250px, 32px) rotate(15deg); }
         }
         .animate-ball-wiggle {
-            animation: ballWiggle 0.5s ease-in-out 3;
+            animation: ballWiggle 0.6s ease-in-out 3;
         }
 
         /* 風で揺れる草むらのアニメーション */
@@ -126,17 +129,6 @@
         }
         .animate-fly-missile {
             animation: flyMissile 0.45s ease-in forwards;
-        }
-
-        /* 命中時フラッシュ */
-        @keyframes hitFlash {
-            0% { filter: brightness(1) drop-shadow(0 0 0px red); }
-            30% { filter: brightness(2.5) drop-shadow(0 0 15px red); transform: translateX(8px) scale(1.1); }
-            60% { filter: brightness(1.8) drop-shadow(0 0 8px red); }
-            100% { filter: brightness(1) drop-shadow(0 0 0px red); }
-        }
-        .animate-hit-flash {
-            animation: hitFlash 0.35s ease-out;
         }
 
         /* ドット絵キャラクターの小刻みなバトルアニメーション */
@@ -279,7 +271,7 @@
                 </div>
 
                 <!-- 左：ポケモンマスター -->
-                <div class="relative z-10 flex items-center justify-center pl-2">
+                <div class="relative z-20 flex items-center justify-center pl-2">
                     <div class="w-16 h-16 animate-pixel-bounce flex items-center justify-center filter drop-shadow-md">
                         <svg class="w-16 h-16 pixelated" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect x="8" y="2" width="16" height="4" fill="#ef4444"/>
@@ -313,11 +305,22 @@
                             <rect x="4" y="7" width="2" height="2" fill="#fef08a"/>
                         </svg>
                     </div>
+
+                    <!-- モンスターボール捕獲用要素 -->
+                    <div id="pokeball-anim" class="hidden absolute left-8 top-4 z-50 pointer-events-none">
+                        <svg class="w-9 h-9 drop-shadow-xl" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+                            <path d="M2 12 A10 10 0 0 1 22 12 Z" fill="#ef4444"/>
+                            <line x1="2" y1="12" x2="22" y2="12" stroke="#0f172a" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="3.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="1.5" fill="#0f172a"/>
+                        </svg>
+                    </div>
                 </div>
 
                 <!-- 右：野生のドット絵怪獣 -->
                 <div id="wild-pokemon-container" class="relative z-10 flex flex-col items-center justify-center w-36 h-32 pr-2 overflow-visible">
-                    <div id="target-pokemon-scale-box" class="transition-transform duration-500 origin-center flex flex-col items-center scale-[2.2]">
+                    <div id="target-pokemon-scale-box" class="transition-all duration-500 origin-center flex flex-col items-center scale-[2.2]">
                         <div class="animate-pixel-monster flex flex-col items-center">
                             <div id="pixel-monster-svg-box" class="w-16 h-16 filter drop-shadow-xl flex items-center justify-center">
                                 <!-- JSで生成されるドット絵 -->
@@ -325,24 +328,12 @@
                         </div>
                     </div>
 
-                    <!-- モンスターボールゲット演出用コンテナ -->
-                    <div id="pokeball-catch-anim" class="hidden absolute z-30 flex flex-col items-center justify-center pointer-events-none">
-                        <div id="pokeball-ball" class="w-10 h-10 filter drop-shadow-2xl">
-                            <svg class="w-10 h-10 pixelated" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="8" cy="8" r="7" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-                                <path d="M1 8 A 7 7 0 0 1 15 8 Z" fill="#ef4444"/>
-                                <line x1="1" y1="8" x2="15" y2="8" stroke="#000000" stroke-width="1.5"/>
-                                <circle cx="8" cy="8" r="2.5" fill="#ffffff" stroke="#000000" stroke-width="1"/>
-                                <circle cx="8" cy="8" r="1" fill="#000000"/>
-                            </svg>
-                        </div>
-                        <div id="pokeball-got-text" class="hidden text-amber-300 font-black text-xs drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mt-1 animate-bounce">
-                            GET! ✨
-                        </div>
-                    </div>
-
                     <div id="hit-explosion" class="hidden absolute z-30 pointer-events-none">
                         <div class="text-3xl animate-ping">💥</div>
+                    </div>
+
+                    <div id="capture-stars" class="hidden absolute z-40 pointer-events-none text-2xl font-black text-amber-300 animate-bounce drop-shadow">
+                        ✨ GET! ✨
                     </div>
                 </div>
             </div>
@@ -492,7 +483,7 @@
             6: { 1:"ロクイチガ", 2:"ロクニ", 3:"ロクサン", 4:"ロクシ", 5:"ロクゴ", 6:"ロクロク", 7:"ロクシチ", 8:"ロクハ", 9:"ロック" },
             7: { 1:"シチイチガ", 2:"シチニ", 3:"シチサン", 4:"シチシ", 5:"シチゴ", 6:"シチろく", 7:"シチシチ", 8:"シチハ", 9:"シチク" },
             8: { 1:"ハチイチガ", 2:"ハチニ", 3:"ハチサン", 4:"ハチシ", 5:"ハチゴ", 6:"ハチロク", 7:"ハチシチ", 8:"はっぱ", 9:"ハック" },
-            9: { 1:"クイチガ", 2:"クニ", 3:"クサン", 4:"クシ", 5:"クゴ", 6:"クロク", 7:"クシチ", 8:"クハ", 9:"クク" }
+            9: { 1:"クイチガ", 2:"クニ", 3:"クサン", 4:"クシ", 5:"くご", 6:"クロク", 7:"クシチ", 8:"クハ", 9:"クク" }
         };
 
         const KUKU_ANSWER_SPEAK = {
@@ -1082,6 +1073,18 @@
             }
             document.getElementById('current-round-tag').innerText = worldNameMap[gameState.currentWorld] || 'ワールド';
 
+            // バトルエリア表示の復元
+            const targetBox = document.getElementById('target-pokemon-scale-box');
+            if (targetBox) {
+                targetBox.classList.remove('opacity-0', 'scale-0');
+            }
+            const ballAnim = document.getElementById('pokeball-anim');
+            if (ballAnim) {
+                ballAnim.className = "hidden absolute left-8 top-4 z-50 pointer-events-none";
+            }
+            const stars = document.getElementById('capture-stars');
+            if (stars) stars.classList.add('hidden');
+
             updateHeartsUI();
             updateMasterGaugeUI();
             renderMonsterSvg();
@@ -1283,35 +1286,79 @@
                 btn.classList.remove('from-indigo-600', 'via-blue-500', 'to-cyan-400');
                 btn.classList.add('from-emerald-400', 'to-teal-500', 'scale-110');
 
-                const missile = document.getElementById('missile-anim');
-                if (missile) {
-                    missile.classList.remove('hidden');
-                    missile.classList.add('animate-fly-missile');
-                    setTimeout(() => {
-                        missile.classList.add('hidden');
-                        missile.classList.remove('animate-fly-missile');
-                        
-                        const hit = document.getElementById('hit-explosion');
-                        if (hit) {
-                            hit.classList.remove('hidden');
-                            setTimeout(() => hit.classList.add('hidden'), 350);
-                        }
-                    }, 400);
-                }
+                const isFinalQuestion = (gameState.currentQuestionIndex + 1 >= gameState.questions.length);
 
-                setTimeout(() => {
-                    gameState.currentQuestionIndex++;
-                    updateMasterGaugeUI();
-                    if (gameState.currentQuestionIndex >= gameState.questions.length) {
-                        // 最終問題クリア時：上部アニメーションエリアでモンスターボール捕獲演出を実行
-                        playCatchPokemonAnimation(() => {
-                            handleStageClear();
-                        });
-                    } else {
+                if (!isFinalQuestion) {
+                    // 途中問題：ミサイル攻撃
+                    const missile = document.getElementById('missile-anim');
+                    if (missile) {
+                        missile.classList.remove('hidden');
+                        missile.classList.add('animate-fly-missile');
+                        setTimeout(() => {
+                            missile.classList.add('hidden');
+                            missile.classList.remove('animate-fly-missile');
+                            
+                            const hit = document.getElementById('hit-explosion');
+                            if (hit) {
+                                hit.classList.remove('hidden');
+                                setTimeout(() => hit.classList.add('hidden'), 350);
+                            }
+                        }, 400);
+                    }
+
+                    setTimeout(() => {
+                        gameState.currentQuestionIndex++;
+                        updateMasterGaugeUI();
                         renderMonsterSvg();
                         showQuestion();
-                    }
-                }, 1200);
+                    }, 1200);
+                } else {
+                    // 最終問題：モンスターボール捕獲アニメーション発動！
+                    gameState.currentQuestionIndex++;
+                    updateMasterGaugeUI();
+
+                    const ballAnim = document.getElementById('pokeball-anim');
+                    const targetBox = document.getElementById('target-pokemon-scale-box');
+                    const stars = document.getElementById('capture-stars');
+
+                    setTimeout(() => {
+                        if (ballAnim) {
+                            ballAnim.classList.remove('hidden');
+                            ballAnim.classList.add('animate-throw-ball');
+                        }
+
+                        // ボールが当たり、ポケモンがボールに吸い込まれる
+                        setTimeout(() => {
+                            if (targetBox) {
+                                targetBox.classList.add('opacity-0', 'scale-0');
+                            }
+                            const hit = document.getElementById('hit-explosion');
+                            if (hit) {
+                                hit.classList.remove('hidden');
+                                setTimeout(() => hit.classList.add('hidden'), 300);
+                            }
+                        }, 450);
+
+                        // ボールがグラグラ揺れてゲット確定
+                        setTimeout(() => {
+                            if (ballAnim) {
+                                ballAnim.classList.remove('animate-throw-ball');
+                                ballAnim.classList.add('animate-ball-wiggle');
+                            }
+                        }, 750);
+
+                        // 星が飛んでGET!メッセージ
+                        setTimeout(() => {
+                            if (stars) stars.classList.remove('hidden');
+                        }, 2200);
+
+                        // クリア処理へ
+                        setTimeout(() => {
+                            handleStageClear();
+                        }, 2800);
+
+                    }, 400);
+                }
 
             } else {
                 playBuzzer();
@@ -1326,46 +1373,6 @@
                     document.getElementById('gameover-modal').classList.remove('hidden');
                 }
             }
-        }
-
-        // クリア時のモンスターボール確保アニメーション処理
-        function playCatchPokemonAnimation(onComplete) {
-            const targetBox = document.getElementById('target-pokemon-scale-box');
-            const ballContainer = document.getElementById('pokeball-catch-anim');
-            const ball = document.getElementById('pokeball-ball');
-            const gotText = document.getElementById('pokeball-got-text');
-
-            if (!targetBox || !ballContainer || !ball) {
-                onComplete();
-                return;
-            }
-
-            // 野生ポケモンの縮小消滅
-            targetBox.style.transition = 'all 0.5s ease-in-out';
-            targetBox.style.opacity = '0';
-            targetBox.style.transform = 'scale(0)';
-
-            // モンスターボール登場・投擲演出
-            ballContainer.classList.remove('hidden');
-            gotText.classList.add('hidden');
-            ball.className = "w-10 h-10 filter drop-shadow-2xl animate-throw-ball";
-
-            setTimeout(() => {
-                // ボールが地面でゆらゆら揺れる演出
-                ball.className = "w-10 h-10 filter drop-shadow-2xl animate-ball-wiggle";
-                setTimeout(() => {
-                    // カチッ！GET演出
-                    gotText.classList.remove('hidden');
-                    playPinpon();
-
-                    setTimeout(() => {
-                        // リセットしてクリア画面へ移動
-                        ballContainer.classList.add('hidden');
-                        targetBox.style.opacity = '1';
-                        onComplete();
-                    }, 1000);
-                }, 1500);
-            }, 600);
         }
 
         function handleStageClear() {
@@ -1475,13 +1482,13 @@
         function getRandomPokemonCard(rank, stageNum, world, isAlreadyCleared) {
             const isPhase1Done = isFirstPhaseComplete();
 
-            // 図鑑40枚（RRまで）未コンプ時は、マスター含めて絶対に対象カードを C, U, R, RR のみに厳格制限
-            let basePool = POKEMON_CARDS;
+            // 40枚コンプ前 (!isPhase1Done) の場合、カードプールは絶対に ['C', 'U', 'R', 'RR'] のみに限定
+            let baseCards = POKEMON_CARDS;
             if (!isPhase1Done) {
-                basePool = POKEMON_CARDS.filter(c => ['C', 'U', 'R', 'RR'].includes(c.rarity));
+                baseCards = POKEMON_CARDS.filter(c => ['C', 'U', 'R', 'RR'].includes(c.rarity));
             }
 
-            const unownedCards = basePool.filter(c => !gameState.ownedCards.includes(c.id));
+            const unownedCards = baseCards.filter(c => !gameState.ownedCards.includes(c.id));
 
             // C未コンプ時の場合：Uが先に多く集まらないよう85%の確率でCの中からドロップ
             const isCComplete = POKEMON_CARDS.filter(c => c.rarity === 'C').every(c => gameState.ownedCards.includes(c.id));
@@ -1502,7 +1509,7 @@
                 } else {
                     // それ以外の段(1~5の段)は95%の確率で被り
                     if (Math.random() < 0.95 && gameState.ownedCards.length > 0) {
-                        const ownedPool = basePool.filter(c => gameState.ownedCards.includes(c.id));
+                        const ownedPool = baseCards.filter(c => gameState.ownedCards.includes(c.id));
                         return pickWeightedCard(ownedPool);
                     }
                 }
@@ -1510,7 +1517,7 @@
                 // 前半40枚未コンプ時の再挑戦被り判定
                 const dupRate = (stageNum === 1 || stageNum === 5) ? 0.95 : 0.85;
                 if (Math.random() < dupRate) {
-                    const ownedPool = basePool.filter(c => gameState.ownedCards.includes(c.id));
+                    const ownedPool = baseCards.filter(c => gameState.ownedCards.includes(c.id));
                     if (ownedPool.length > 0) {
                         return pickWeightedCard(ownedPool);
                     }
@@ -1540,7 +1547,7 @@
                 allowedRarities = ['C', 'U', 'R', 'RR', 'AR', 'SR', 'SAR', 'UR', 'MUR'];
             }
 
-            // 図鑑40枚未コンプ時はAR〜MURを除外（絶対ストッパー）
+            // 40枚達成前は絶対に ['C', 'U', 'R', 'RR'] より上のレアリティを除外
             if (!isPhase1Done) {
                 allowedRarities = allowedRarities.filter(r => ['C', 'U', 'R', 'RR'].includes(r));
             }
@@ -1556,280 +1563,552 @@
             }
 
             // 選出可能なレアリティのカードリスト
-            let targetPool = basePool.filter(c => allowedRarities.includes(c.rarity));
+            let targetPool = baseCards.filter(c => allowedRarities.includes(c.rarity));
 
             // 未所持カードがあれば優先して選択
             const unownedInPool = targetPool.filter(c => !gameState.ownedCards.includes(c.id));
             const finalPool = (unownedInPool.length > 0) ? unownedInPool : targetPool;
 
-            if (finalPool.length === 0) return basePool[0] || POKEMON_CARDS[0];
+            if (finalPool.length === 0) return baseCards[0] || POKEMON_CARDS[0];
 
             return pickWeightedCard(finalPool);
         }
 
         function handleNextStep() {
-            const world = gameState.currentWorld;
-            const stage = gameState.currentStage;
-
-            if (world === 'master') {
+            if (gameState.currentWorld === 'master') {
                 showStageSelect();
                 return;
             }
-
-            const currentIndex = STAGE_ORDER.indexOf(stage);
+            const currentIndex = STAGE_ORDER.indexOf(gameState.currentStage);
             if (currentIndex >= 0 && currentIndex < STAGE_ORDER.length - 1) {
-                const nextStageNum = STAGE_ORDER[currentIndex + 1];
-                if (gameState.unlockedStages[world].includes(nextStageNum)) {
-                    startStage(nextStageNum);
-                    return;
-                }
+                const nextStage = STAGE_ORDER[currentIndex + 1];
+                startStage(nextStage);
+            } else {
+                showStageSelect();
             }
-            showStageSelect();
         }
 
-        function createCardHtml(card) {
+        function retryCurrentStage() {
+            startStage(gameState.currentStage);
+        }
+
+        function createCardHtml(card, isModal = false) {
             const isNew = gameState.newCards.includes(card.id);
-            const isSpecialRarity = ['R', 'RR', 'AR', 'SR', 'SAR', 'UR', 'MUR'].includes(card.rarity);
+            const scaleClass = isModal ? '' : 'w-48 h-72';
 
-            let borderStyle = 'border-slate-300';
-            if (card.rarity === 'RR') borderStyle = 'border-purple-400 gold-glow';
-            else if (card.rarity === 'AR') borderStyle = 'border-amber-400 gold-glow';
-            else if (card.rarity === 'SR') borderStyle = 'border-pink-400 super-glow';
-            else if (card.rarity === 'SAR') borderStyle = 'border-cyan-300 super-glow';
-            else if (card.rarity === 'UR') borderStyle = 'border-yellow-300 gold-glow';
-            else if (card.rarity === 'MUR') borderStyle = 'border-amber-300 animate-rainbow-glow';
+            const rarityBadgeMap = {
+                'C': '● C', 'U': '◆ U', 'R': '★ R', 'RR': '★★ RR',
+                'AR': '🎨 AR', 'SR': '輝 SR', 'SAR': '✨ SAR', 'UR': '🏆 UR', 'MUR': '👑 MUR'
+            };
+            const rarityBadge = rarityBadgeMap[card.rarity] || card.rarity;
 
-            let foilClass = isSpecialRarity ? 'card-foil' : '';
+            // C, U, R, RR はホログラムなし。AR, SR, SAR, UR, MUR のみホログラム対象
+            const isFoilRarity = ['AR', 'SR', 'SAR', 'UR', 'MUR'].includes(card.rarity);
+            let extraEffectClass = isFoilRarity ? 'card-foil' : '';
+            let borderStyle = 'border-amber-300/80';
 
-            // 特定の明るいキャラは黒背景＋白枠、暗い/水系キャラは明るいスポットライト背景を補正
-            let imgBgStyle = `bg-gradient-to-b ${card.bgTone}`;
-            let innerBorder = "border-white/20";
-            if (['p11', 'p31', 'p53', 'p59', 'p60'].includes(card.id)) {
-                innerBorder = "border-white/80";
-            } else if (['p5', 'p15', 'p24', 'p43', 'p58'].includes(card.id)) {
-                imgBgStyle += " bg-white/25 backdrop-blur-sm";
+            if (card.rarity === 'MUR') {
+                extraEffectClass = 'card-foil animate-rainbow-glow';
+                borderStyle = 'border-yellow-200';
+            } else if (card.rarity === 'UR') {
+                extraEffectClass = 'card-foil';
+                borderStyle = 'border-yellow-400 gold-glow';
+            } else if (card.rarity === 'SAR' || card.rarity === 'SR') {
+                extraEffectClass = 'card-foil';
+                borderStyle = 'border-pink-300 super-glow';
             }
 
-            const rarityBadgeColors = {
-                'C': 'bg-slate-600 text-white',
-                'U': 'bg-emerald-600 text-white',
-                'R': 'bg-blue-600 text-white font-bold',
-                'RR': 'bg-purple-600 text-white font-black',
-                'AR': 'bg-gradient-to-r from-amber-400 to-amber-600 text-slate-900 font-black',
-                'SR': 'bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black',
-                'SAR': 'bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 text-white font-black',
-                'UR': 'bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 text-slate-900 font-black',
-                'MUR': 'bg-gradient-to-r from-red-500 via-yellow-400 to-purple-600 text-white font-black animate-pulse'
-            };
+            // モーダル表示時はカード名称を省略（truncate）せずに全文表示
+            const nameClass = isModal 
+                ? 'text-xs sm:text-sm tracking-wide text-amber-200 drop-shadow-md leading-tight break-words font-black max-w-[140px]' 
+                : 'text-sm sm:text-base tracking-wide truncate max-w-[110px] drop-shadow-md text-amber-200';
 
-            const svgArt = getPokemonSvgArt(card);
+            // 明るいキャラクターの判定（ポッチャマとカイオーガは背景を明るくするため対象外）
+            const brightNames = ['ピカチュウ', 'ライチュウ', 'サンダー', 'ミライドン', 'パモ', 'デデンネ', 'アルセウス', 'ルギア', 'ミュウ', 'ピチュー', 'プリン', 'トゲピー', 'ピッピ', 'コダック', 'イーブイ', 'ニャース', 'ポッポ'];
+            let isBrightChar = brightNames.some(b => card.name.includes(b));
+            if (card.name.includes('ポッチャマ') || card.name.includes('カイオーガ')) {
+                isBrightChar = false;
+            }
+
+            // 暗いキャラ（＋ポッチャマ・カイオーガ）は背景を明るくスポットライト化
+            // 背景を暗いままにしたカードも、枠線は白に近い色（border-white/80）に調整
+            const illusBgClass = isBrightChar 
+                ? 'bg-slate-900/60 border-white/80 shadow-sm' 
+                : 'bg-white/25 border-white/40 shadow-md';
+
+            const glowClass = isBrightChar
+                ? 'from-white/30 via-slate-800/20 to-transparent'
+                : 'from-white/70 via-white/30 to-transparent';
 
             return `
-                <div class="w-52 h-72 sm:w-56 sm:h-80 rounded-2xl border-4 ${borderStyle} ${foilClass} p-2.5 bg-slate-900 flex flex-col justify-between relative shadow-2xl select-none transform transition-all duration-300">
+                <div class="relative ${scaleClass} rounded-2xl p-2.5 bg-gradient-to-b ${card.bgTone} border-4 ${borderStyle} shadow-2xl flex flex-col justify-between ${extraEffectClass} text-white overflow-hidden select-none">
                     
                     ${isNew ? `
-                        <div class="absolute top-1 right-1 z-50 bg-red-600 text-white font-black text-[10px] sm:text-xs px-2 py-0.5 rounded-full shadow-lg border border-white animate-bounce">
+                        <div class="absolute top-1 right-1 z-50 bg-gradient-to-r from-red-500 to-pink-500 text-white font-black text-[10px] px-2.5 py-0.5 rounded-full border-2 border-white shadow-xl animate-bounce">
                             NEW!
                         </div>
                     ` : ''}
 
-                    <!-- カードヘッダー -->
-                    <div class="flex justify-between items-center border-b border-white/20 pb-1 z-10">
-                        <div class="flex items-center gap-1">
-                            <span class="font-black text-xs sm:text-sm text-white drop-shadow">${card.name}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <span class="text-[10px] text-slate-300 font-bold">HP</span>
-                            <span class="font-black text-xs sm:text-sm text-red-400">${card.hp}</span>
-                            <span class="text-[10px] ${card.typeBg} px-1.5 py-0.5 rounded-full font-bold ml-1">${card.type}</span>
+                    <div class="flex justify-between items-center z-10 font-black border-b border-white/20 pb-1">
+                        <span class="${nameClass}">${card.name}</span>
+                        <span class="text-xs px-2 py-0.5 rounded-full ${card.typeBg} font-bold shadow-sm shrink-0">HP ${card.hp}</span>
+                    </div>
+
+                    <div class="my-1.5 h-28 sm:h-32 rounded-xl ${illusBgClass} border flex items-center justify-center relative overflow-hidden shadow-inner">
+                        <div class="absolute inset-0 opacity-50 bg-[radial-gradient(circle,_var(--tw-gradient-stops))] ${glowClass}"></div>
+                        ${getPokemonSvgIllustration(card)}
+                    </div>
+
+                    <div class="bg-slate-950/70 rounded-xl p-1.5 border border-white/10 z-10 space-y-1">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span class="text-amber-300 flex items-center gap-1">
+                                <span>${card.cost}</span>
+                                <span>${card.attack}</span>
+                            </span>
+                            <span class="text-sm font-black text-rose-400">${card.damage}</span>
                         </div>
                     </div>
 
-                    <!-- イラストエリア -->
-                    <div class="w-full h-32 sm:h-36 rounded-xl ${imgBgStyle} border ${innerBorder} flex items-center justify-center relative overflow-hidden my-1 shadow-inner z-10">
-                        <div class="transform hover:scale-110 transition-transform duration-300 filter drop-shadow-xl" style="transform: scale(${card.scale || 1.0})">
-                            ${svgArt}
-                        </div>
-                    </div>
-
-                    <!-- ワザエリア -->
-                    <div class="bg-slate-800/90 rounded-xl p-1.5 border border-white/10 space-y-1 z-10">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-1">
-                                <span class="text-xs">${card.cost}</span>
-                                <span class="font-black text-xs text-white">${card.attack}</span>
-                            </div>
-                            <span class="font-black text-sm text-amber-300">${card.damage}</span>
-                        </div>
-                    </div>
-
-                    <!-- フッター (レアリティ表記) -->
-                    <div class="flex justify-between items-center text-[10px] pt-0.5 border-t border-white/10 z-10">
-                        <span class="text-slate-400 font-mono">No.${card.id.replace('p', '').padStart(3, '0')}</span>
-                        <span class="px-2 py-0.5 rounded ${rarityBadgeColors[card.rarity] || 'bg-slate-700 text-white'}">${card.rarity}</span>
+                    <div class="flex justify-between items-center z-10 text-[10px] text-amber-200/80 pt-1 font-bold">
+                        <span>${rarityBadge}</span>
+                        <span class="uppercase tracking-widest text-amber-400">${card.rarity}</span>
                     </div>
                 </div>
             `;
         }
 
-        // ポケモンのイラスト描画用SVG
-        function getPokemonSvgArt(card) {
-            const color = card.accentColor || '#f59e0b';
-            
-            // ピカチュウ系
-            if (['p6', 'p11', 'p21', 'p31', 'p59'].includes(card.id)) {
-                return `
-                    <svg class="w-20 h-20 pixelated" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="4" y="2" width="4" height="8" fill="#1e293b"/>
-                        <rect x="24" y="2" width="4" height="8" fill="#1e293b"/>
-                        <rect x="6" y="6" width="4" height="6" fill="#facc15"/>
-                        <rect x="22" y="6" width="4" height="6" fill="#facc15"/>
-                        <rect x="8" y="10" width="16" height="14" fill="#facc15"/>
-                        <rect x="10" y="14" width="3" height="3" fill="#000000"/>
-                        <rect x="19" y="14" width="3" height="3" fill="#000000"/>
-                        <rect x="8" y="18" width="3" height="3" fill="#ef4444"/>
-                        <rect x="21" y="18" width="3" height="3" fill="#ef4444"/>
-                        <rect x="14" y="19" width="4" height="2" fill="#000000"/>
-                        <rect x="10" y="24" width="4" height="5" fill="#facc15"/>
-                        <rect x="18" y="24" width="4" height="5" fill="#facc15"/>
-                    </svg>
-                `;
+        function getPokemonSvgIllustration(card) {
+            const accent = card.accentColor || '#f59e0b';
+            const scale = card.scale || 1.0;
+            const name = card.name || '';
+
+            // 1. 絵文字表示指定のあるカード
+            if (name === 'キャタピー') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐛</div>`;
             }
-            
-            // リザードン・炎系
-            if (['p13', 'p18', 'p26', 'p27', 'p32', 'p51'].includes(card.id)) {
-                return `
-                    <svg class="w-20 h-20 pixelated" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="8" y="4" width="16" height="18" fill="#ea580c"/>
-                        <rect x="10" y="8" width="4" height="4" fill="#000000"/>
-                        <rect x="18" y="8" width="4" height="4" fill="#000000"/>
-                        <rect x="12" y="14" width="8" height="4" fill="#fef08a"/>
-                        <rect x="4" y="10" width="4" height="8" fill="#c2410c"/>
-                        <rect x="24" y="10" width="4" height="8" fill="#c2410c"/>
-                        <rect x="10" y="22" width="12" height="6" fill="#ea580c"/>
-                        <rect x="22" y="22" width="6" height="4" fill="#ef4444"/>
-                    </svg>
+            if (name === 'コラッタ') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐀</div>`;
+            }
+            if (name === 'ポッポ') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐦</div>`;
+            }
+            if (name === 'ニャース') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐱</div>`;
+            }
+            if (name === 'コダック') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐥</div>`;
+            }
+            if (name === 'パモ') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐹</div>`;
+            }
+            if (name.includes('モクロー')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F989;</div>`;
+            }
+            if (name.includes('イーブイ')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F436;</div>`;
+            }
+            if (name === 'トゲピー') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐣</div>`;
+            }
+            if (name === 'フシギダネ') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🧄</div>`;
+            }
+            if (name.includes('ゼニガメ') || name.includes('カメックス')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐢</div>`;
+            }
+            if (name.includes('ポッチャマ')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F427;</div>`;
+            }
+            if (name === 'シャワーズ') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🦭</div>`;
+            }
+            if (name === 'プリン') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐽</div>`;
+            }
+            if (name === 'ケーシィ') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🦊</div>`;
+            }
+            if (name === 'ピッピ') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐖</div>`;
+            }
+            if (name === 'メノクラゲ') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🪼</div>`;
+            }
+            if (name === 'ギャラドス') {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">🐉</div>`;
+            }
+            if (name.includes('ラプラス')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F40B;</div>`;
+            }
+            if (name.includes('ガーディ')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F42F;</div>`;
+            }
+            if (name.includes('ストライク')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F997;</div>`;
+            }
+            if (name.includes('エレブー')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F405;</div>`;
+            }
+            if (name.includes('ゲッコウガ')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F9E3;</div>`;
+            }
+            if (name.includes('サーナイト')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F9DA;</div>`;
+            }
+            if (name.includes('ゲンガー')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F608;</div>`;
+            }
+            if (name.includes('ルカリオ')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F98A;</div>`;
+            }
+            if (name.includes('カビゴン')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F99B;</div>`;
+            }
+            if (name.includes('デデンネ')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F439;</div>`;
+            }
+            if (name.includes('レックウザ') || name.includes('レックーザ')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F432;</div>`;
+            }
+            if (name.includes('ナンジャモ')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F469;</div>`;
+            }
+            if (name.includes('カイリュー')) {
+                return `<div class="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-lg select-none">&#x1F42A;</div>`;
+            }
+
+            // 2. 絵文字非対象カード用の本格的・高品質SVGイラスト描画
+            let svgContent = '';
+
+            if (name.includes('ピチュー') || name.includes('ピカチュウ') || name.includes('ライチュウ')) {
+                // ピカチュウ系: 長い耳、赤いほっぺ、稲妻尾
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <polygon points="6,2 11,10 4,14" fill="#000000"/>
+                        <polygon points="26,2 21,10 28,14" fill="#000000"/>
+                        <ellipse cx="7" cy="8" rx="3" ry="6" fill="#facc15" transform="rotate(-20 7 8)"/>
+                        <ellipse cx="25" cy="8" rx="3" ry="6" fill="#facc15" transform="rotate(20 25 8)"/>
+                        <circle cx="16" cy="18" r="10" fill="#facc15"/>
+                        <circle cx="12" cy="16" r="1.5" fill="#000000"/>
+                        <circle cx="20" cy="16" r="1.5" fill="#000000"/>
+                        <circle cx="9" cy="20" r="2.5" fill="#ef4444"/>
+                        <circle cx="23" cy="20" r="2.5" fill="#ef4444"/>
+                        <path d="M14 21 Q16 23 18 21" stroke="#000000" stroke-width="1.5" fill="none"/>
+                        <polygon points="24,24 28,16 26,28 31,22" fill="#eab308" stroke="#000" stroke-width="0.5"/>
+                    </g>
+                `;
+            } else if (name.includes('リザードン') || name.includes('ヒトカゲ')) {
+                // リザードン/ヒトカゲ: オレンジの竜、エメラルドの翼、炎の吐息
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <path d="M4 14 C1 6 12 4 12 14 Z" fill="#065f46" stroke="#ea580c" stroke-width="1"/>
+                        <path d="M28 14 C31 6 20 4 20 14 Z" fill="#065f46" stroke="#ea580c" stroke-width="1"/>
+                        <path d="M10 26 C10 16 22 16 22 26 Z" fill="#ea580c"/>
+                        <ellipse cx="16" cy="22" rx="4" ry="5" fill="#fef08a"/>
+                        <path d="M11 12 Q16 6 21 12 Q16 16 11 12 Z" fill="#ea580c"/>
+                        <circle cx="14" cy="11" r="1" fill="#000"/>
+                        <circle cx="18" cy="11" r="1" fill="#000"/>
+                        <polygon points="16,2 18,7 14,7" fill="#ef4444"/>
+                        <polygon points="16,0 19,5 13,5" fill="#f59e0b"/>
+                    </g>
+                `;
+            } else if (name.includes('フシギバナ')) {
+                // フシギバナ: 桃色の大きな花と葉
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <circle cx="16" cy="8" r="7" fill="#ec4899"/>
+                        <circle cx="16" cy="8" r="3" fill="#facc15"/>
+                        <path d="M4 16 C8 10 12 14 16 12" stroke="#15803d" stroke-width="4" fill="none"/>
+                        <path d="M28 16 C24 10 20 14 16 12" stroke="#15803d" stroke-width="4" fill="none"/>
+                        <rect x="8" y="16" width="16" height="12" rx="6" fill="#0d9488"/>
+                        <circle cx="12" cy="20" r="1.5" fill="#ef4444"/>
+                        <circle cx="20" cy="20" r="1.5" fill="#ef4444"/>
+                    </g>
+                `;
+            } else if (name.includes('ミュウツー') || name.includes('ミュウ')) {
+                // ミュウツー/ミュウ: サイコオーラとオーブ
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <circle cx="16" cy="16" r="13" fill="none" stroke="#a855f7" stroke-width="2" stroke-dasharray="4 2"/>
+                        <path d="M12 28 Q4 20 12 12 Q20 16 20 28 Z" fill="#a855f7" opacity="0.8"/>
+                        <circle cx="16" cy="12" r="6" fill="#e9d5ff"/>
+                        <circle cx="14" cy="11" r="1" fill="#38bdf8"/>
+                        <circle cx="18" cy="11" r="1" fill="#38bdf8"/>
+                        <circle cx="24" cy="10" r="4" fill="#38bdf8" opacity="0.9"/>
+                    </g>
+                `;
+            } else if (name.includes('サンダース')) {
+                // サンダース: 針々しい黄色い体と白い襟巻き
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <polygon points="16,2 20,8 26,4 22,12 30,12 22,16 28,24 18,20 16,30 14,20 4,24 10,16 2,12 10,12 6,4 12,8" fill="#facc15"/>
+                        <circle cx="16" cy="16" r="6" fill="#ffffff"/>
+                        <circle cx="14" cy="15" r="1.5" fill="#000"/>
+                        <circle cx="18" cy="15" r="1.5" fill="#000"/>
+                    </g>
+                `;
+            } else if (name.includes('ブースター')) {
+                // ブースター: ふわふわの赤い狐と炎
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <path d="M6 10 C6 2 26 2 26 10 Z" fill="#ea580c"/>
+                        <ellipse cx="16" cy="18" rx="10" ry="8" fill="#fef08a"/>
+                        <circle cx="16" cy="14" r="5" fill="#ea580c"/>
+                        <circle cx="14" cy="13" r="1" fill="#000"/>
+                        <circle cx="18" cy="13" r="1" fill="#000"/>
+                        <path d="M16 2 L19 7 L13 7 Z" fill="#fef08a"/>
+                    </g>
+                `;
+            } else if (name.includes('ロコン')) {
+                // ロコン: 6本尾の狐
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <circle cx="16" cy="16" r="8" fill="#ea580c"/>
+                        <circle cx="12" cy="8" r="3" fill="#fef08a"/>
+                        <circle cx="16" cy="6" r="3" fill="#fef08a"/>
+                        <circle cx="20" cy="8" r="3" fill="#fef08a"/>
+                        <path d="M8 24 Q4 18 10 20 M12 26 Q8 20 14 22 M24 24 Q28 18 22 20" stroke="#f97316" stroke-width="3" fill="none"/>
+                    </g>
+                `;
+            } else if (name.includes('パルシェン')) {
+                // パルシェン: 紫のトゲトゲ貝
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <polygon points="16,2 20,8 28,6 24,14 30,22 20,22 16,30 12,22 2,22 8,14 4,6 12,8" fill="#3b0764"/>
+                        <circle cx="16" cy="16" r="7" fill="#000000"/>
+                        <circle cx="13" cy="15" r="1.5" fill="#ffffff"/>
+                        <circle cx="19" cy="15" r="1.5" fill="#ffffff"/>
+                        <polygon points="16,8 18,12 14,12" fill="#ffffff"/>
+                    </g>
+                `;
+            } else if (name.includes('フリーザー')) {
+                // フリーザー: 伝説の氷の鳥
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <path d="M2 14 Q16 4 30 14 Q16 20 2 14 Z" fill="#38bdf8"/>
+                        <circle cx="16" cy="14" r="5" fill="#0284c7"/>
+                        <polygon points="14,4 16,0 18,4" fill="#e0f2fe"/>
+                        <path d="M16 19 C10 28 22 28 16 32" stroke="#e0f2fe" stroke-width="2" fill="none"/>
+                    </g>
+                `;
+            } else if (name.includes('サンダー')) {
+                // サンダー: 伝説の雷の鳥
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <polygon points="16,2 19,10 28,4 22,14 30,12 22,20 26,30 16,22 6,30 10,20 2,12 10,14 4,4 13,10" fill="#facc15"/>
+                        <polygon points="16,6 18,12 14,12" fill="#000000"/>
+                        <circle cx="16" cy="16" r="4" fill="#eab308"/>
+                    </g>
+                `;
+            } else if (name.includes('ファイヤー')) {
+                // ファイヤー: 伝説の火の鳥
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <path d="M2 18 C8 4 24 4 30 18 C20 12 12 12 2 18 Z" fill="#ef4444"/>
+                        <path d="M6 16 C10 8 22 8 26 16 C20 14 12 14 6 16 Z" fill="#f97316"/>
+                        <circle cx="16" cy="14" r="4" fill="#facc15"/>
+                        <path d="M14 6 L16 1 L18 6 Z" fill="#ef4444"/>
+                    </g>
+                `;
+            } else if (name.includes('ハッサム')) {
+                // ハッサム: 赤い鋼ハサミ
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <rect x="10" y="8" width="12" height="16" rx="6" fill="#dc2626"/>
+                        <circle cx="6" cy="14" r="4" fill="#991b1b" stroke="#facc15" stroke-width="1"/>
+                        <circle cx="26" cy="14" r="4" fill="#991b1b" stroke="#facc15" stroke-width="1"/>
+                        <circle cx="14" cy="12" r="1.5" fill="#facc15"/>
+                        <circle cx="18" cy="12" r="1.5" fill="#facc15"/>
+                    </g>
+                `;
+            } else if (name.includes('アルセウス')) {
+                // アルセウス: 創世の神の輪
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <circle cx="16" cy="16" r="11" fill="none" stroke="#fde047" stroke-width="3"/>
+                        <polygon points="16,2 20,12 30,12 22,18 25,28 16,22 7,28 10,18 2,12 12,12" fill="#ffffff" opacity="0.9"/>
+                        <circle cx="16" cy="16" r="4" fill="#eab308"/>
+                        <circle cx="16" cy="16" r="2" fill="#10b981"/>
+                    </g>
+                `;
+            } else if (name.includes('ミライドン')) {
+                // ミライドン: 未来のサイバー雷竜
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <circle cx="16" cy="16" r="12" fill="none" stroke="#06b6d4" stroke-width="2"/>
+                        <path d="M10 24 C10 10 22 10 22 24 Z" fill="#8b5cf6"/>
+                        <circle cx="16" cy="18" r="5" fill="#06b6d4"/>
+                        <polygon points="16,4 19,10 13,10" fill="#a855f7"/>
+                    </g>
+                `;
+            } else if (name.includes('コライドン')) {
+                // コライドン: 古代の赤き格闘竜
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <circle cx="16" cy="16" r="10" fill="#e11d48"/>
+                        <path d="M6 10 L16 2 L26 10 Z" fill="#38bdf8"/>
+                        <circle cx="16" cy="16" r="5" fill="#ffffff"/>
+                        <circle cx="16" cy="16" r="3" fill="#1e293b"/>
+                    </g>
+                `;
+            } else if (name.includes('ギラティナ')) {
+                // ギラティナ: 異次元の翼と黄金の爪
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <path d="M2 8 Q16 20 30 8 M2 24 Q16 12 30 24" stroke="#dc2626" stroke-width="4" fill="none"/>
+                        <circle cx="16" cy="16" r="8" fill="#64748b"/>
+                        <path d="M12 8 L16 2 L20 8 Z" fill="#f59e0b"/>
+                        <circle cx="14" cy="15" r="1.5" fill="#ef4444"/>
+                        <circle cx="18" cy="15" r="1.5" fill="#ef4444"/>
+                    </g>
+                `;
+            } else if (name.includes('ルギア')) {
+                // ルギア: 白き海神
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <path d="M2 16 Q16 2 30 16 Q16 26 2 16 Z" fill="#f8fafc"/>
+                        <path d="M10 14 Q16 10 22 14" stroke="#1e40af" stroke-width="3" fill="none"/>
+                        <circle cx="16" cy="14" r="2" fill="#1e40af"/>
+                    </g>
+                `;
+            } else if (name.includes('カイオーガ')) {
+                // カイオーガ: 紺碧の巨大海獣
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <ellipse cx="16" cy="16" rx="14" ry="9" fill="#1e3a8a"/>
+                        <path d="M6 16 L26 16" stroke="#ef4444" stroke-width="2"/>
+                        <circle cx="10" cy="13" r="1.5" fill="#ffffff"/>
+                        <circle cx="22" cy="13" r="1.5" fill="#ffffff"/>
+                    </g>
+                `;
+            } else {
+                // 汎用バックアップSVG
+                svgContent = `
+                    <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))">
+                        <circle cx="16" cy="16" r="10" fill="${accent}"/>
+                        <polygon points="16,4 19,12 28,12 21,17 24,25 16,20 8,25 11,17 4,12 13,12" fill="#ffffff" opacity="0.6"/>
+                    </g>
                 `;
             }
 
-            // カメックス・ポッチャマ・水系
-            if (['p5', 'p14', 'p15', 'p16', 'p23', 'p24', 'p25', 'p28', 'p33', 'p36', 'p43', 'p49', 'p58'].includes(card.id)) {
-                return `
-                    <svg class="w-20 h-20 pixelated" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="8" y="6" width="16" height="16" fill="#38bdf8"/>
-                        <rect x="10" y="8" width="4" height="4" fill="#ffffff"/>
-                        <rect x="18" y="8" width="4" height="4" fill="#ffffff"/>
-                        <rect x="11" y="9" width="2" height="2" fill="#000000"/>
-                        <rect x="19" y="9" width="2" height="2" fill="#000000"/>
-                        <rect x="12" y="14" width="8" height="4" fill="#fde047"/>
-                        <rect x="10" y="20" width="12" height="8" fill="#0284c7"/>
-                        <rect x="12" y="22" width="8" height="6" fill="#ffffff"/>
-                    </svg>
-                `;
-            }
-
-            // 汎用ドット絵（アルセウス・その他）
             return `
-                <svg class="w-20 h-20 pixelated" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="8" y="6" width="16" height="16" fill="${color}"/>
-                    <rect x="10" y="10" width="4" height="4" fill="#ffffff"/>
-                    <rect x="18" y="10" width="4" height="4" fill="#ffffff"/>
-                    <rect x="11" y="11" width="2" height="2" fill="#000000"/>
-                    <rect x="19" y="11" width="2" height="2" fill="#000000"/>
-                    <rect x="12" y="16" width="8" height="3" fill="#1e293b"/>
-                    <rect x="10" y="22" width="12" height="6" fill="${color}"/>
+                <svg class="w-20 h-20" viewBox="0 0 32 32" style="transform: scale(${scale});">
+                    ${svgContent}
                 </svg>
             `;
         }
 
-        // 図鑑フィルターバー生成
-        function renderAlbumFilterBar() {
-            const container = document.getElementById('album-filter-bar');
-            if (!container) return;
-            container.innerHTML = '';
+        // --- アルバム（カードずかん）機能 ---
 
-            let rarities = ['ALL', 'C', 'U', 'R', 'RR'];
-            if (isFirstPhaseComplete()) {
-                rarities = ['ALL', 'C', 'U', 'R', 'RR', 'AR', 'SR', 'SAR', 'UR', 'MUR'];
-            }
+        function renderAlbumFilters() {
+            const filterBar = document.getElementById('album-filter-bar');
+            if (!filterBar) return;
 
-            rarities.forEach(r => {
+            const isPhase1Done = isFirstPhaseComplete();
+            
+            // RRまで未コンプ時はAR〜MURのフィルターボタンを完全に非表示
+            const filters = isPhase1Done 
+                ? ['ALL', ...RARITY_ORDER]
+                : ['ALL', 'C', 'U', 'R', 'RR'];
+
+            filterBar.innerHTML = '';
+
+            filters.forEach(rarity => {
                 const btn = document.createElement('button');
-                const isActive = currentAlbumFilter === r;
-                btn.className = isActive 
-                    ? "px-3 py-1 rounded-full text-xs font-black bg-amber-400 text-slate-900 border border-white shadow shrink-0" 
-                    : "px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0 border border-slate-700";
-                btn.innerText = r;
-                btn.onclick = () => renderAlbum(r);
-                container.appendChild(btn);
+                
+                let count = 0;
+                let totalInRarity = 0;
+
+                if (rarity === 'ALL') {
+                    if (isPhase1Done) {
+                        count = gameState.ownedCards.length;
+                        totalInRarity = 60;
+                    } else {
+                        const p1Cards = POKEMON_CARDS.filter(c => ['C', 'U', 'R', 'RR'].includes(c.rarity));
+                        count = p1Cards.filter(c => gameState.ownedCards.includes(c.id)).length;
+                        totalInRarity = 40;
+                    }
+                } else {
+                    count = POKEMON_CARDS.filter(c => c.rarity === rarity && gameState.ownedCards.includes(c.id)).length;
+                    totalInRarity = POKEMON_CARDS.filter(c => c.rarity === rarity).length;
+                }
+
+                const isActive = currentAlbumFilter === rarity;
+
+                btn.className = `px-3 py-1 rounded-full text-xs font-black whitespace-nowrap transition-all ${
+                    isActive 
+                        ? 'bg-amber-400 text-slate-900 border-2 border-white shadow' 
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-indigo-500/30'
+                }`;
+                btn.innerText = `${rarity} (${count}/${totalInRarity})`;
+                btn.onclick = () => {
+                    currentAlbumFilter = rarity;
+                    renderAlbumFilters();
+                    renderAlbumGrid();
+                };
+                filterBar.appendChild(btn);
             });
         }
 
         function showAlbum() {
+            stopBGM();
             hideAllScreens();
             document.getElementById('album-screen').classList.remove('hidden');
-            renderAlbumFilterBar();
-            renderAlbum(currentAlbumFilter);
+            renderAlbumFilters();
+            renderAlbumGrid();
         }
 
-        function renderAlbum(filter = 'ALL') {
-            currentAlbumFilter = filter;
-            renderAlbumFilterBar();
-
+        function renderAlbumGrid() {
             const grid = document.getElementById('album-grid');
             if (!grid) return;
             grid.innerHTML = '';
 
             const isPhase1Done = isFirstPhaseComplete();
 
-            let cardList = POKEMON_CARDS;
-            if (!isPhase1Done) {
-                // RRまでの前半40枚未達成時はAR〜MURはリストから隠す
-                cardList = POKEMON_CARDS.filter(c => ['C', 'U', 'R', 'RR'].includes(c.rarity));
+            // RRまで未コンプ時はAR〜MURのカード枠自体を表示しない
+            let availableCards = isPhase1Done
+                ? POKEMON_CARDS
+                : POKEMON_CARDS.filter(c => ['C', 'U', 'R', 'RR'].includes(c.rarity));
+
+            let filteredCards = availableCards;
+            if (currentAlbumFilter !== 'ALL') {
+                filteredCards = availableCards.filter(c => c.rarity === currentAlbumFilter);
             }
 
-            if (filter !== 'ALL') {
-                cardList = cardList.filter(c => c.rarity === filter);
-            }
-
-            cardList.forEach(card => {
+            filteredCards.forEach(card => {
                 const isOwned = gameState.ownedCards.includes(card.id);
-                const item = document.createElement('div');
-                item.className = "flex justify-center items-center cursor-pointer transform hover:scale-105 transition-transform";
+                const wrapper = document.createElement('div');
+                wrapper.className = "flex justify-center items-center cursor-pointer transform hover:scale-105 transition-transform duration-200";
 
                 if (isOwned) {
-                    item.innerHTML = createCardHtml(card);
-                    item.onclick = () => openCardModal(card.id);
+                    wrapper.innerHTML = createCardHtml(card);
+                    wrapper.onclick = () => showCardModal(card);
                 } else {
-                    item.innerHTML = `
-                        <div class="w-full h-48 sm:h-56 rounded-2xl border-2 border-slate-700/80 bg-slate-900/80 p-3 flex flex-col items-center justify-center text-slate-500 shadow-inner">
+                    wrapper.innerHTML = `
+                        <div class="w-full h-44 sm:h-52 rounded-2xl bg-slate-900/80 border-2 border-slate-700 flex flex-col items-center justify-center text-slate-600 p-2 text-center shadow-inner relative overflow-hidden">
                             <i data-lucide="lock" class="w-8 h-8 mb-2 text-slate-600"></i>
-                            <span class="text-xs font-black text-slate-400">???</span>
-                            <span class="text-[10px] text-slate-500 mt-1 font-mono">No.${card.id.replace('p', '').padStart(3, '0')}</span>
-                            <span class="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded mt-2 border border-slate-700">${card.rarity}</span>
+                            <span class="text-xs font-bold text-slate-500">???</span>
+                            <span class="text-[10px] text-slate-600 mt-1 uppercase font-bold">${card.rarity}</span>
                         </div>
                     `;
                 }
-                grid.appendChild(item);
+                grid.appendChild(wrapper);
             });
 
             if (window.lucide) lucide.createIcons();
         }
 
-        function openCardModal(cardId) {
-            const card = POKEMON_CARDS.find(c => c.id === cardId);
-            if (!card) return;
+        function showCardModal(card) {
+            const container = document.getElementById('modal-card-container');
+            if (!container) return;
+            container.innerHTML = createCardHtml(card, true);
 
-            // 新規フラグ解除
-            const idx = gameState.newCards.indexOf(cardId);
-            if (idx !== -1) {
-                gameState.newCards.splice(idx, 1);
+            // 既読処理
+            const newIndex = gameState.newCards.indexOf(card.id);
+            if (newIndex !== -1) {
+                gameState.newCards.splice(newIndex, 1);
                 saveData();
-            }
-
-            const modalContainer = document.getElementById('modal-card-container');
-            if (modalContainer) {
-                modalContainer.innerHTML = createCardHtml(card);
+                renderAlbumGrid();
             }
 
             document.getElementById('card-modal').classList.remove('hidden');
@@ -1837,83 +2116,135 @@
 
         function closeCardModal() {
             document.getElementById('card-modal').classList.add('hidden');
-            if (!document.getElementById('album-screen').classList.contains('hidden')) {
-                renderAlbum(currentAlbumFilter);
-            }
         }
 
-        function retryCurrentStage() {
-            document.getElementById('gameover-modal').classList.add('hidden');
-            startStage(currentStageNumber);
-        }
+        // --- お祝い演出（紙吹雪 & 連発花火） ---
+        let celebrationAnimId = null;
 
-        // 紙吹雪・花火演出
-        function launchCelebration(isAll60 = false, isPhase40 = false) {
+        function launchCelebration(isComplete = false, isAllClear = false) {
             const canvas = document.getElementById('celebration-canvas');
             if (!canvas) return;
-
+            canvas.classList.remove('hidden');
             const ctx = canvas.getContext('2d');
+            
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            canvas.classList.remove('hidden');
 
             const particles = [];
-            const count = isAll60 ? 150 : (isPhase40 ? 100 : 60);
-            const colors = ['#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#8b5cf6', '#ec4899', '#fde047', '#ffffff'];
+            const fireworks = [];
 
-            for (let i = 0; i < count; i++) {
+            // 紙吹雪生成
+            const particleCount = isComplete ? 200 : (isAllClear ? 150 : 80);
+            const colors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#6366f1', '#3b82f6', '#06b6d4', '#10b981', '#84cc16', '#eab308', '#f97316'];
+
+            for (let i = 0; i < particleCount; i++) {
                 particles.push({
-                    x: canvas.width / 2 + (Math.random() - 0.5) * 200,
-                    y: canvas.height / 2 + (Math.random() - 0.5) * 100,
-                    vx: (Math.random() - 0.5) * 12,
-                    vy: (Math.random() - 0.8) * 14,
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
                     size: Math.random() * 8 + 4,
                     color: colors[Math.floor(Math.random() * colors.length)],
-                    gravity: 0.25,
-                    alpha: 1.0,
-                    decay: Math.random() * 0.015 + 0.008
+                    vx: Math.random() * 2 - 1,
+                    vy: Math.random() * 3 + 2,
+                    rot: Math.random() * 360,
+                    vRot: Math.random() * 10 - 5
                 });
             }
 
-            let animationId;
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                let alive = false;
+            // 花火生成関数
+            function createFirework() {
+                const fx = Math.random() * (canvas.width * 0.8) + canvas.width * 0.1;
+                const fy = Math.random() * (canvas.height * 0.5) + canvas.height * 0.1;
+                const count = Math.floor(Math.random() * 30) + 40;
+                const fwColor = colors[Math.floor(Math.random() * colors.length)];
 
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += p.gravity;
-                    p.alpha -= p.decay;
-
-                    if (p.alpha > 0) {
-                        alive = true;
-                        ctx.save();
-                        ctx.globalAlpha = Math.max(0, p.alpha);
-                        ctx.fillStyle = p.color;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.restore();
-                    }
-                });
-
-                if (alive) {
-                    animationId = requestAnimationFrame(animate);
-                } else {
-                    canvas.classList.add('hidden');
-                    cancelAnimationFrame(animationId);
+                for (let i = 0; i < count; i++) {
+                    const angle = (Math.PI * 2 / count) * i + Math.random() * 0.2;
+                    const speed = Math.random() * 5 + 3;
+                    fireworks.push({
+                        x: fx,
+                        y: fy,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        size: Math.random() * 3 + 2,
+                        color: fwColor,
+                        alpha: 1,
+                        decay: Math.random() * 0.02 + 0.015
+                    });
                 }
             }
 
-            animate();
+            let fwTimer = 0;
+            const fwFrequency = isComplete ? 12 : 25; // 花火打ち上げ頻度
+
+            if (celebrationAnimId) cancelAnimationFrame(celebrationAnimId);
+
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 連発花火
+                fwTimer++;
+                if (fwTimer % fwFrequency === 0) {
+                    createFirework();
+                }
+
+                // 花火描画・更新
+                for (let i = fireworks.length - 1; i >= 0; i--) {
+                    const fw = fireworks[i];
+                    fw.x += fw.vx;
+                    fw.y += fw.vy;
+                    fw.vy += 0.05; // 重力
+                    fw.alpha -= fw.decay;
+
+                    if (fw.alpha <= 0) {
+                        fireworks.splice(i, 1);
+                        continue;
+                    }
+
+                    ctx.save();
+                    ctx.globalAlpha = fw.alpha;
+                    ctx.fillStyle = fw.color;
+                    ctx.beginPath();
+                    ctx.arc(fw.x, fw.y, fw.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // 紙吹雪描画・更新
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.rot += p.vRot;
+
+                    if (p.y > canvas.height) {
+                        p.y = -10;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rot * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                });
+
+                celebrationAnimId = requestAnimationFrame(loop);
+            }
+
+            loop();
+
+            setTimeout(() => {
+                if (celebrationAnimId) cancelAnimationFrame(celebrationAnimId);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.classList.add('hidden');
+            }, isComplete ? 8000 : 5000);
         }
 
-        // 初期ロード実行
-        window.addEventListener('DOMContentLoaded', () => {
+        // ウィンドウロード時初期化
+        window.onload = function() {
             loadSaveData();
             showStageSelect();
-        });
+        };
     </script>
 </body>
 </html>
